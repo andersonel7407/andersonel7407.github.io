@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12304a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CI Field Kit">
+<title>CI Field Kit</title>
+<style>
+:root{
+  --ink:#16202a; --muted:#5b6774; --line:#d9dee4; --bg:#f4f6f8; --card:#ffffff;
+  --brand:#12304a; --accent:#1f7a8c; --accent-soft:#e3f1f4; --warn:#b26a00; --warn-soft:#fff3e0;
+  --ok:#2e7d4f; --ok-soft:#e6f4ec; --bad:#a33a3a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.4}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:18px;margin:0;font-weight:650;letter-spacing:.2px}
+header .sub{font-size:12px;opacity:.75;margin-top:1px}
+header button{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:6px;padding:6px 10px;font-size:14px}
+main{padding:14px 14px 96px;max-width:640px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;background:none;border:0;padding:9px 2px 8px;font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+nav button.on{color:var(--accent);font-weight:600}
+h2{font-size:20px;margin:4px 0 12px}
+h3{font-size:15px;margin:18px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}
+.row{display:flex;gap:10px;align-items:center}
+.grow{flex:1;min-width:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:8px;padding:12px 16px;font-weight:600;background:var(--accent);color:#fff;min-height:46px}
+.btn.full{width:100%}
+.btn.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+.btn.quiet{background:#eef1f4;color:var(--ink)}
+.btn.danger{background:#fff;color:var(--bad);border:1px solid var(--bad)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.stat .n{font-size:26px;font-weight:700;line-height:1.1}
+.stat .l{font-size:12.5px;color:var(--muted);margin-top:3px}
+.seg{display:flex;background:#e7ebef;border-radius:8px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:none;padding:7px 4px;border-radius:6px;font-size:13.5px;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.bar{margin:8px 0}
+.bar .t{display:flex;justify-content:space-between;font-size:13.5px}
+.bar .track{height:9px;background:#e9edf1;border-radius:5px;margin-top:4px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent);border-radius:5px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:block;width:100%;text-align:left}
+.item .top{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted)}
+.item .title{font-weight:600;margin:3px 0 2px}
+.item .meta{font-size:13px;color:var(--muted)}
+.tag{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:#eef1f4;color:var(--ink);white-space:nowrap}
+.tag.open,.tag.new,.tag.plan{background:var(--accent-soft);color:var(--accent)}
+.tag.prog,.tag.do,.tag.check,.tag.trying{background:var(--warn-soft);color:var(--warn)}
+.tag.done,.tag.adopted,.tag.fixed{background:var(--ok-soft);color:var(--ok)}
+.tag.aside,.tag.stopped{background:#eee;color:#666}
+.letter{display:inline-flex;width:22px;height:22px;border-radius:5px;background:var(--brand);color:#fff;font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-right:6px}
+.empty{text-align:center;color:var(--muted);padding:28px 10px}
+.note{font-size:13px;color:var(--muted)}
+.rule{background:var(--warn-soft);border-left:4px solid var(--warn);padding:9px 12px;border-radius:6px;font-size:13.5px;margin-bottom:14px}
+.okbox{background:var(--ok-soft);border-left:4px solid var(--ok);padding:9px 12px;border-radius:6px;font-size:13.5px;margin-bottom:12px}
+label.f{display:block;font-size:13.5px;font-weight:600;margin:14px 0 6px}
+label.f .opt{font-weight:400;color:var(--muted)}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;padding:11px 12px;border:1px solid #c5ccd4;border-radius:8px;background:#fff;font-size:16px}
+textarea{min-height:84px;resize:vertical}
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wopt{border:1px solid #c5ccd4;border-radius:8px;padding:9px 10px;background:#fff;text-align:left;font-size:13.5px;display:flex;align-items:flex-start;gap:8px}
+.wopt.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.wopt b{display:block;font-size:14px}
+.wopt small{color:var(--muted);font-size:12px;line-height:1.25;display:block}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid #c5ccd4;border-radius:20px;padding:7px 13px;background:#fff;font-size:14px}
+.chip.on{border-color:var(--accent);background:var(--accent);color:#fff}
+.sheet{position:fixed;inset:0;background:var(--bg);z-index:20;overflow:auto;display:none}
+.sheet.show{display:block}
+.sheet .bar2{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;display:flex;align-items:center;justify-content:space-between;z-index:2}
+.sheet .bar2 b{font-size:16px}
+.sheet .body{padding:4px 16px 120px;max-width:640px;margin:0 auto}
+.linkbtn{background:none;border:0;color:var(--accent);font-weight:600;padding:8px 4px;font-size:15px}
+.step{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px;background:#fff}
+.step .row select{width:auto;flex:0 0 108px}
+.step .row input[type=number]{flex:0 0 88px}
+.flow{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:8px}
+.flow span{font-size:11.5px;padding:3px 7px;border-radius:4px;color:#fff}
+.k-work{background:var(--ok)} .k-wait{background:var(--bad)} .k-move{background:var(--warn)} .k-check{background:#5a6b7d}
+.logline{font-size:13px;border-bottom:1px solid var(--line);padding:8px 0}
+.logline .a{font-weight:600}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;z-index:40;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.menu .item{display:flex;justify-content:space-between;align-items:center}
+.warnbanner{background:var(--warn-soft);border:1px solid #f0c98a;color:#6b4100;border-radius:8px;padding:10px 12px;font-size:13.5px;margin-bottom:12px}
+.fabwrap{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:6}
+.fab{width:58px;height:58px;border-radius:50%;background:var(--accent);color:#fff;border:0;font-size:30px;line-height:1;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+</style>
+<link rel="manifest" href="manifest.json">
+</head>
+<body>
+<header>
+  <div><h1 id="hdr">CI Field Kit</h1><div class="sub" id="hdrsub">Continuous improvement log</div></div>
+  <button id="menuBtn" onclick="go('more')">More</button>
+</header>
+<main id="main"></main>
+<div class="fabwrap" id="fabwrap"></div>
+<nav id="nav"></nav>
+<div class="sheet" id="sheet"><div class="bar2"><button class="linkbtn" onclick="closeSheet()">Cancel</button><b id="sheetTitle"></b><button class="linkbtn" id="sheetSave">Save</button></div><div class="body" id="sheetBody"></div></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json,application/json" style="display:none">
+<script>
+'use strict';
+/* ---------- constants ---------- */
+const APP='ci-field-kit', SCHEMA=1, KEY='ciFieldKit.v1';
+const WASTES=[
+ ['D','Defects','Scrap, rework, errors, wrong info'],
+ ['O','Overproduction','Making more or sooner than needed'],
+ ['W','Waiting','Waiting on parts, people, approvals, machines'],
+ ['N','Non-used talent','Skills or ideas not being used'],
+ ['T','Transportation','Moving parts or material more than needed'],
+ ['I','Inventory','Excess stock, WIP piling up'],
+ ['M','Motion','Walking, searching, reaching, hunting for tools'],
+ ['E','Extra processing','More work or paperwork than the job needs']];
+const FREQ=[['once','Just this once',0],['month','A few times a month',0.75],['week','About weekly',1],['day','About daily',5],['multi','Several times a day',15]];
+const WALKQ=['How does work come into this area, and where does it go next?','Where does work wait here, and what is it waiting for?','What slows people down the most?','What is working well here that other areas could copy?','What do the people here say they need?'];
+const STEPK=[['work','Work'],['wait','Wait'],['move','Move'],['check','Check']];
+const UNITS=[['minw','minutes per week'],['hrw','hours per week'],['cntw','count per week'],['pct','percent'],['other','other']];
+const MODS={waste:'Waste',walk:'Area walk',process:'Process',idea:'Idea',fix:'Fix'};
+const SHARE_TO={name:'Eric Anderson',email:'eanderson@matsys.com'};
+const SHARE_PURPOSE="Eric's shop software project, so it can learn from real continuous-improvement records";
+const DEFAULT_AREAS=['Receiving','Programming','Machining','EDM','Inspection / QC','Shipping','Tool crib','Office / admin'];
+
+/* ---------- storage ---------- */
+let S=null, storageOK=true, DEMO=/[?&]demo=1/.test(location.search);
+function blank(){return{app:APP,schema:SCHEMA,deviceId:uid(),settings:null,records:{waste:[],walk:[],process:[],idea:[],fix:[]},log:[],lastExport:null,sharing:{consent:null,consentAt:null,remind:true,sends:[]}}}
+function load(){
+  if(DEMO){S=demoData();return}
+  try{const raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):blank();}catch(e){storageOK=false;S=blank();}
+  for(const k of Object.keys(MODS)) if(!S.records[k]) S.records[k]=[];
+  if(!S.sharing) S.sharing={consent:null,consentAt:null,remind:true,sends:[]};
+}
+function save(){ if(DEMO) return; try{localStorage.setItem(KEY,JSON.stringify(S));storageOK=true}catch(e){storageOK=false;toast('Could not save on this phone. Export a backup now.')} }
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function now(){return new Date().toISOString()}
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmtDate(iso){if(!iso)return'';const d=new Date(iso.length===10?iso+'T12:00:00':iso);return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}
+function fmtTime(iso){const d=new Date(iso);return d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
+function num(v){const n=parseFloat(v);return isFinite(n)?n:0}
+
+/* ---------- activity log (append only) ---------- */
+function logEvent(action,module,rec,extra){
+  const e={seq:S.log.length+1,ts:now(),action,module:module||null,id:rec?rec.id:null,by:S.settings?S.settings.name:'',title:rec?titleOf(module,rec):(extra||''),data:rec?JSON.parse(JSON.stringify(rec)):null};
+  S.log.push(e);
+}
+function titleOf(m,r){
+  if(!r)return'';
+  if(m==='waste')return (r.what||'').slice(0,70);
+  if(m==='walk')return 'Walk: '+(r.area||'');
+  return r.title||r.name||'';
+}
+function upsert(m,rec){
+  const list=S.records[m];const i=list.findIndex(x=>x.id===rec.id);
+  if(i<0){rec.id=rec.id||uid();rec.created=now();rec.updated=rec.created;rec.rev=1;rec.archived=false;list.push(rec);logEvent('create',m,rec)}
+  else{rec.updated=now();rec.rev=(list[i].rev||1)+1;list[i]=rec;logEvent('update',m,rec)}
+  save();return rec;
+}
+function archive(m,id,flag){const r=S.records[m].find(x=>x.id===id);if(!r)return;r.archived=flag;r.updated=now();r.rev=(r.rev||1)+1;logEvent(flag?'archive':'restore',m,r);save()}
+function active(m){return S.records[m].filter(r=>!r.archived)}
+
+/* ---------- navigation ---------- */
+const ICON={
+ home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+ waste:'<path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
+ walk:'<circle cx="12" cy="5" r="2"/><path d="M10 22l2-7 3 3v6M9 12l3-4 4 3 3 1M12 8l-1 5"/>',
+ process:'<rect x="3" y="4" width="6" height="5" rx="1"/><rect x="15" y="4" width="6" height="5" rx="1"/><rect x="9" y="15" width="6" height="5" rx="1"/><path d="M9 6.5h6M18 9v3H12v3M6 9v3h6"/>',
+ idea:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/>',
+ fix:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8V21h3.2l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>'};
+const TABS=[['home','Summary'],['waste','Waste'],['walk','Walks'],['process','Process'],['idea','Ideas'],['fix','Fixes']];
+let VIEW='home', PERIOD='30';
+function drawNav(){document.getElementById('nav').innerHTML=TABS.map(([k,l])=>`<button class="${VIEW===k?'on':''}" onclick="go('${k}')"><svg viewBox="0 0 24 24">${ICON[k]}</svg>${l}</button>`).join('')}
+function go(v){VIEW=v;render();window.scrollTo(0,0)}
+function fab(){document.getElementById('fabwrap').innerHTML=''}
+function render(){
+  if(!S.settings){return setup()}
+  document.getElementById('nav').style.display='flex';document.getElementById('menuBtn').style.display='';
+  document.getElementById('hdrsub').textContent=(S.settings.site?S.settings.site+' · ':'')+S.settings.name;
+  drawNav();
+  const m=document.getElementById('main');
+  const V={home:viewHome,waste:viewWaste,walk:viewWalk,process:viewProcess,idea:viewIdea,fix:viewFix,more:viewMore,log:viewLog,backup:viewBackup,settings:viewSettings,about:viewAbout,share:viewShare}[VIEW]||viewHome;
+  m.innerHTML=(storageOK?'':'<div class="warnbanner">This phone is not saving data in this browser. Export a backup now and open the app in your normal browser (Safari or Chrome).</div>')+V();
+}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('show'),2200)}
+
+/* ---------- first-run setup ---------- */
+function setup(){
+  document.getElementById('nav').style.display='none';document.getElementById('menuBtn').style.display='none';fab();
+  document.getElementById('hdrsub').textContent='First-time setup';
+  document.getElementById('main').innerHTML=`
+  <h2>Welcome</h2>
+  <p>CI Field Kit is a simple log for finding waste, learning how work flows, collecting ideas and proving the results of fixes. Everything stays on this phone until you export it.</p>
+  <label class="f">Your name</label><input type="text" id="sName" placeholder="First and last name">
+  <label class="f">Company or site <span class="opt">(optional)</span></label><input type="text" id="sSite" placeholder="Shown at the top of the app">
+  <label class="f">Areas of the shop <span class="opt">(one per line, edit any time)</span></label>
+  <textarea id="sAreas" style="min-height:170px">${DEFAULT_AREAS.join('\n')}</textarea>
+  <h3>Before you start</h3>
+  <div class="rule"><b>Company authorization first.</b> This app runs on a personal phone, which is not a company-controlled device, and its records could include sensitive company information. Do not record shop information in it until the company has authorized its use. To look around first, add <b>?demo=1</b> to the address for example data that is never saved.</div>
+  <div class="rule"><b>Problems, not people.</b> Write "parts wait two days at inspection," never "Joe is slow." The log is about how work flows, not about who did what.</div>
+  <div class="rule"><b>No controlled information.</b> No part numbers, customer names, drawing details or anything marked CUI or export-controlled. Describe problems in general terms.</div>
+  <button class="btn full" onclick="finishSetup()">I have authorization. Start.</button>`;
+}
+function finishSetup(){
+  const name=document.getElementById('sName').value.trim();
+  if(!name){toast('Enter your name');return}
+  const areas=document.getElementById('sAreas').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  S.settings={authorizationConfirmed:now(),name,site:document.getElementById('sSite').value.trim(),areas:areas.length?areas:DEFAULT_AREAS.slice(),createdAt:now(),rulesAccepted:now()};
+  logEvent('setup',null,null,'App set up by '+name+'; confirmed company authorization to use it');save();go('home');
+}
+
+/* ---------- summary ---------- */
+function inPeriod(dateStr){if(PERIOD==='all')return true;const d=new Date((dateStr||'').length===10?dateStr+'T12:00:00':dateStr);return (Date.now()-d.getTime())<=num(PERIOD)*864e5}
+function weeklyMin(w){const f=FREQ.find(x=>x[0]===w.freq);return f&&f[2]?num(w.minutes)*f[2]:0}
+function recoveredHrs(f){if(f.status!=='done')return 0;const d=num(f.before)-num(f.after);if(d<=0)return 0;return f.unit==='minw'?d/60:f.unit==='hrw'?d:0}
+function stats(){
+  const W=active('waste').filter(w=>inPeriod(w.date)), K=active('walk').filter(w=>inPeriod(w.date)), P=active('process').filter(p=>inPeriod(p.created)),
+        I=active('idea').filter(i=>inPeriod(i.created)), F=active('fix');
+  const minutes=W.reduce((a,w)=>a+num(w.minutes),0);
+  const recurring=active('waste').filter(w=>w.status!=='fixed').reduce((a,w)=>a+weeklyMin(w),0);
+  const byType={},byArea={};
+  W.forEach(w=>{const t=WASTES.find(x=>x[0]===w.type);const k=t?t[1]:'Other';byType[k]=(byType[k]||0)+num(w.minutes);byArea[w.area||'—']=(byArea[w.area||'—']||0)+num(w.minutes)});
+  const done=F.filter(f=>f.status==='done'&&inPeriod(f.updated));
+  return{W,K,P,I,F,minutes,recurring,byType,byArea,done,recovered:F.reduce((a,f)=>a+recoveredHrs(f),0),
+    ideasNew:I.length,adopted:active('idea').filter(i=>i.status==='adopted').length,
+    openFix:F.filter(f=>['plan','do','check'].includes(f.status)).length};
+}
+function bars(obj,unit){
+  const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,5);if(!e.length)return'<div class="note">Nothing logged in this period.</div>';
+  const max=e[0][1]||1;return e.map(([k,v])=>`<div class="bar"><div class="t"><span>${esc(k)}</span><b>${Math.round(v)} ${unit}</b></div><div class="track"><div class="fill" style="width:${Math.max(4,v/max*100)}%"></div></div></div>`).join('');
+}
+function hrs(m){return (m/60).toFixed(m/60<10?1:0)}
+function viewHome(){
+  fab('newWaste()','Log waste');
+  const s=stats();
+  const days=S.lastExport?Math.floor((Date.now()-new Date(S.lastExport).getTime())/864e5):null;
+  const anyData=Object.keys(MODS).some(k=>S.records[k].length);
+  const backup=!anyData?'':(days===null||days>=7)?`<div class="warnbanner"><b>Backup due.</b> ${days===null?'No backup yet.':'Last backup '+days+' days ago.'} Your log lives only on this phone. <a href="#" onclick="go('backup');return false">Export now</a></div>`:`<div class="okbox">Last backup ${days===0?'today':days+' day'+(days>1?'s':'')+' ago'}.</div>`;
+  const showShare=S.sharing&&S.sharing.consent==='agreed'&&S.sharing.remind&&anyData, sd=showShare?daysSinceSend():null;
+  const shareLine=!showShare?'':(sd===null?`<div class="note" style="margin:-4px 0 12px">Not yet sent to ${SHARE_TO.name.split(' ')[0]}. <a href="#" onclick="go('share');return false">Send when ready</a></div>`:(sd>=30?`<div class="note" style="margin:-4px 0 12px">Last sent to ${SHARE_TO.name.split(' ')[0]}: ${sd} days ago. <a href="#" onclick="go('share');return false">Send when ready</a></div>`:''));
+  return `${backup}${shareLine}
+  <button class="btn full" style="margin-bottom:12px" onclick="newWaste()">+ Log waste</button>
+  <div class="seg">${[['7','7 days'],['30','30 days'],['90','90 days'],['all','All']].map(([k,l])=>`<button class="${PERIOD===k?'on':''}" onclick="PERIOD='${k}';render()">${l}</button>`).join('')}</div>
+  <div class="stats">
+   <div class="stat"><div class="n">${s.W.length}</div><div class="l">Waste entries logged</div></div>
+   <div class="stat"><div class="n">${hrs(s.minutes)} h</div><div class="l">Time lost, as logged</div></div>
+   <div class="stat"><div class="n">${hrs(s.recurring)} h</div><div class="l">Est. weekly cost of open, repeating waste</div></div>
+   <div class="stat"><div class="n">${s.recovered.toFixed(1)} h</div><div class="l">Hours per week recovered by finished fixes</div></div>
+   <div class="stat"><div class="n">${s.K.length}</div><div class="l">Area walks</div></div>
+   <div class="stat"><div class="n">${s.ideasNew}</div><div class="l">Ideas collected (${s.adopted} adopted overall)</div></div>
+  </div>
+  <div class="card"><b>Where the time goes</b><div class="note">Minutes lost by waste type</div>${bars(s.byType,'min')}</div>
+  <div class="card"><b>Where it happens</b><div class="note">Minutes lost by area</div>${bars(s.byArea,'min')}</div>
+  <div class="card"><b>Fixes</b><div class="note">${s.openFix} in progress · ${s.done.length} finished in this period</div></div>
+  <button class="btn ghost full" onclick="shareReport()">Share a written report</button>
+  <p class="note" style="margin-top:10px">Weekly cost estimates use the "how often" answer on each waste entry. They are estimates, not measurements.</p>`;
+}
+function reportText(){
+  const s=stats();const pl={7:'last 7 days',30:'last 30 days',90:'last 90 days',all:'all time'}[PERIOD];
+  const top=(o)=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v],i)=>`  ${i+1}. ${k}: ${Math.round(v)} min`).join('\n')||'  (none)';
+  const fx=active('fix').filter(f=>f.status!=='stopped').map(f=>`  - ${f.title} [${statusLabel('fix',f.status)}]${f.status==='done'&&f.after!==''?` ${f.before} → ${f.after} ${unitLabel(f.unit,f.unitOther)}`:''}`).join('\n')||'  (none)';
+  return `CI Field Kit report (${pl})
+${S.settings.site?S.settings.site+'\n':''}Prepared by ${S.settings.name}, ${fmtDate(now())}
+
+Waste entries logged: ${s.W.length}
+Time lost, as logged: ${hrs(s.minutes)} hours
+Estimated weekly cost of open, repeating waste: ${hrs(s.recurring)} hours/week
+Hours per week recovered by finished fixes: ${s.recovered.toFixed(1)}
+Area walks: ${s.K.length}
+Ideas collected: ${s.ideasNew} (adopted overall: ${s.adopted})
+
+Top waste types:
+${top(s.byType)}
+
+Top areas:
+${top(s.byArea)}
+
+Fixes:
+${fx}
+`}
+async function shareReport(){
+  const t=reportText();logEvent('report',null,null,'Written report shared ('+PERIOD+')');save();
+  try{if(navigator.share){await navigator.share({title:'CI report',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(t);toast('Report copied. Paste it into an email or text.')}catch(e){openSheet('Report',`<pre style="white-space:pre-wrap;font-size:13px">${esc(t)}</pre>`,null)}
+}
+
+/* ---------- generic list helpers ---------- */
+let SHOWARCH=false;
+function listHead(title,desc,newFn,newLabel){
+  return `<h2>${title}</h2><p class="note" style="margin-top:-6px">${desc}</p><button class="btn full" style="margin:6px 0 14px" onclick="${newFn}">${newLabel}</button>`;
+}
+function archToggle(m){const n=S.records[m].filter(r=>r.archived).length;return n?`<button class="linkbtn" onclick="SHOWARCH=!SHOWARCH;render()">${SHOWARCH?'Hide':'Show'} archived (${n})</button>`:''}
+function rows(m){return S.records[m].filter(r=>SHOWARCH?true:!r.archived).slice().sort((a,b)=>(b.date||b.created).localeCompare(a.date||a.created))}
+function statusLabel(m,s){const L={waste:{open:'Open',prog:'Being fixed',fixed:'Fixed'},idea:{new:'New',trying:'Being tried',adopted:'Adopted',aside:'Set aside'},fix:{plan:'Plan',do:'Do',check:'Check',done:'Done',stopped:'Stopped'}};return (L[m]||{})[s]||s||''}
+
+/* ---------- WASTE ---------- */
+function viewWaste(){
+  fab('newWaste()','Log waste');
+  const r=rows('waste');
+  return listHead('Waste log','Anything that cost time, material or effort without adding value. Log it when it happens; it takes about 20 seconds.','newWaste()','+ Log waste')+
+  (r.length?r.map(w=>{const t=WASTES.find(x=>x[0]===w.type)||['?','Other'];return `<button class="item" onclick="editWaste('${w.id}')"><div class="top"><span><span class="letter">${t[0]}</span>${t[1]} · ${esc(w.area)}</span><span class="tag ${w.status}">${statusLabel('waste',w.status)}</span></div><div class="title">${esc(w.what)}</div><div class="meta">${fmtDate(w.date)} · ${num(w.minutes)} min · ${FREQ.find(f=>f[0]===w.freq)?.[1]||''}${w.archived?' · archived':''}</div></button>`}).join(''):'<div class="empty">No waste logged yet.<br>Tap <b>+ Log waste</b> the next time something slows the work down.</div>')+archToggle('waste');
+}
+function newWaste(){wasteForm({date:today(),area:'',type:'',what:'',minutes:'',freq:'once',idea:'',status:'open'})}
+function editWaste(id){wasteForm(JSON.parse(JSON.stringify(S.records.waste.find(x=>x.id===id))))}
+function areaSelect(id,val){const a=S.settings.areas.slice();if(val&&!a.includes(val))a.push(val);return `<select id="${id}"><option value="">Choose an area</option>${a.map(x=>`<option ${x===val?'selected':''}>${esc(x)}</option>`).join('')}</select>`}
+function wasteForm(w){
+  let type=w.type;
+  const html=`<div class="rule">Problems, not people. No part numbers, customer names or drawing details.</div>
+  <label class="f">Date</label><input type="date" id="wDate" value="${esc(w.date)}">
+  <label class="f">Area</label>${areaSelect('wArea',w.area)}
+  <label class="f">Type of waste</label><div class="wgrid" id="wTypes">${WASTES.map(x=>`<button type="button" class="wopt ${type===x[0]?'on':''}" data-k="${x[0]}"><span class="letter">${x[0]}</span><span><b>${x[1]}</b><small>${x[2]}</small></span></button>`).join('')}</div>
+  <label class="f">What happened?</label><textarea id="wWhat" placeholder="Example: Waited for an inspector to sign off the first piece before running the batch.">${esc(w.what)}</textarea>
+  <label class="f">About how many minutes did it cost?</label><input type="number" inputmode="decimal" id="wMin" value="${esc(w.minutes)}" placeholder="Minutes">
+  <label class="f">How often does this happen?</label><div class="chips" id="wFreq">${FREQ.map(f=>`<button type="button" class="chip ${w.freq===f[0]?'on':''}" data-k="${f[0]}">${f[1]}</button>`).join('')}</div>
+  <label class="f">Idea for a fix <span class="opt">(optional)</span></label><textarea id="wIdea" placeholder="What would stop this from happening?">${esc(w.idea)}</textarea>
+  ${w.id?`<label class="f">Status</label><div class="chips" id="wStat">${['open','prog','fixed'].map(s=>`<button type="button" class="chip ${w.status===s?'on':''}" data-k="${s}">${statusLabel('waste',s)}</button>`).join('')}</div>
+  <div style="margin-top:22px;display:grid;gap:8px"><button class="btn ghost full" onclick="fixFromWaste('${w.id}')">Start a fix from this entry</button>${archBtn('waste',w)}</div>`:''}`;
+  openSheet(w.id?'Edit waste':'Log waste',html,()=>{
+    const r=Object.assign(w,{date:val('wDate')||today(),area:val('wArea'),type:type,what:val('wWhat').trim(),minutes:val('wMin'),freq:w.freq,idea:val('wIdea').trim()});
+    if(!r.area)return toast('Choose an area');if(!r.type)return toast('Choose a type of waste');if(!r.what)return toast('Describe what happened');
+    upsert('waste',r);toast('Saved');return true;
+  });
+  pick('wTypes',k=>type=k);pick('wFreq',k=>w.freq=k);pick('wStat',k=>w.status=k);
+}
+
+/* ---------- AREA WALKS ---------- */
+function viewWalk(){
+  fab('newWalk()','New walk');
+  const r=rows('walk');
+  return listHead('Area walks','Go see how work is done in an area. Ask the same five questions each time, listen, and write down what you learn.','newWalk()','+ Start a walk')+
+  (r.length?r.map(w=>`<button class="item" onclick="editWalk('${w.id}')"><div class="top"><span>${fmtDate(w.date)}</span><span>${num(w.people)} spoken with</span></div><div class="title">${esc(w.area)}</div><div class="meta">${esc((w.answers||[]).find(a=>a)||w.notes||'').slice(0,90)}${w.archived?' · archived':''}</div></button>`).join(''):'<div class="empty">No walks yet.</div>')+archToggle('walk')+
+  `<div class="card" style="margin-top:14px"><b>Walks per area</b>${bars(active('walk').reduce((o,w)=>(o[w.area]=(o[w.area]||0)+1,o),{}),'')}</div>`;
+}
+function newWalk(){walkForm({date:today(),area:'',people:'',answers:['','','','',''],notes:'',followup:''})}
+function editWalk(id){walkForm(JSON.parse(JSON.stringify(S.records.walk.find(x=>x.id===id))))}
+function walkForm(w){
+  const html=`<div class="rule">Ask about the work, not about people. Record what you see and hear, not who said it.</div>
+  <label class="f">Date</label><input type="date" id="kDate" value="${esc(w.date)}">
+  <label class="f">Area walked</label>${areaSelect('kArea',w.area)}
+  <label class="f">How many people did you talk with?</label><input type="number" inputmode="numeric" id="kPeople" value="${esc(w.people)}">
+  ${WALKQ.map((q,i)=>`<label class="f">${i+1}. ${q}</label><textarea id="kA${i}">${esc(w.answers[i]||'')}</textarea>`).join('')}
+  <label class="f">Other notes <span class="opt">(optional)</span></label><textarea id="kNotes">${esc(w.notes)}</textarea>
+  <label class="f">Follow-ups <span class="opt">(questions to answer, things to check)</span></label><textarea id="kFollow">${esc(w.followup)}</textarea>
+  ${w.id?`<div style="margin-top:22px">${archBtn('walk',w)}</div>`:''}`;
+  openSheet(w.id?'Edit walk':'Area walk',html,()=>{
+    const r=Object.assign(w,{date:val('kDate')||today(),area:val('kArea'),people:val('kPeople'),answers:WALKQ.map((q,i)=>val('kA'+i).trim()),notes:val('kNotes').trim(),followup:val('kFollow').trim()});
+    if(!r.area)return toast('Choose an area');upsert('walk',r);toast('Saved');return true;
+  });
+}
+
+/* ---------- PROCESS SNAPSHOTS ---------- */
+function procTotals(p){const t={work:0,wait:0,move:0,check:0};(p.steps||[]).forEach(s=>t[s.kind]=(t[s.kind]||0)+num(s.minutes));const all=t.work+t.wait+t.move+t.check;return{...t,all,valuePct:all?Math.round(t.work/all*100):0}}
+function dur(m){m=Math.round(m);if(m<60)return m+' min';if(m<60*24)return (m/60).toFixed(1)+' h';return (m/1440).toFixed(1)+' days'}
+function flow(p){return `<div class="flow">${(p.steps||[]).map(s=>`<span class="k-${s.kind}">${esc(s.name||STEPK.find(k=>k[0]===s.kind)[1])}</span>`).join('<span style="color:#999;background:none;padding:0">›</span>')}</div>`}
+function viewProcess(){
+  fab('newProcess()','New snapshot');
+  const r=rows('process');
+  return listHead('Process snapshots','Pick one process and write down every step from start to finish. Mark each step as work, wait, move or check, with a rough time.','newProcess()','+ New snapshot')+
+  (r.length?r.map(p=>{const t=procTotals(p);return `<button class="item" onclick="editProcess('${p.id}')"><div class="top"><span>${fmtDate(p.created)} · ${esc(p.area)}</span><span>${(p.steps||[]).length} steps</span></div><div class="title">${esc(p.title)}</div><div class="meta">Total ${dur(t.all)} · waiting ${dur(t.wait)} · hands-on work ${t.valuePct}%${p.archived?' · archived':''}</div>${flow(p)}</button>`}).join(''):'<div class="empty">No process snapshots yet.</div>')+archToggle('process');
+}
+function newProcess(){processForm({title:'',area:'',start:'',end:'',steps:[{name:'',kind:'work',minutes:''}],notes:''})}
+function editProcess(id){processForm(JSON.parse(JSON.stringify(S.records.process.find(x=>x.id===id))))}
+function processForm(p){
+  const stepsHtml=()=>p.steps.map((s,i)=>`<div class="step"><div class="row"><b style="width:22px">${i+1}</b><input type="text" class="grow" data-i="${i}" data-f="name" value="${esc(s.name)}" placeholder="Step"></div>
+   <div class="row" style="margin-top:8px"><select data-i="${i}" data-f="kind">${STEPK.map(k=>`<option value="${k[0]}" ${s.kind===k[0]?'selected':''}>${k[1]}</option>`).join('')}</select><input type="number" inputmode="decimal" data-i="${i}" data-f="minutes" value="${esc(s.minutes)}" placeholder="min"><span class="note grow">minutes</span><button type="button" class="linkbtn" data-del="${i}" style="color:var(--bad)">Remove</button></div></div>`).join('');
+  const html=`<div class="rule">Describe steps in general terms. No part numbers, customer names or drawing details.</div>
+  <label class="f">Process name</label><input type="text" id="pTitle" value="${esc(p.title)}" placeholder="Example: First-article inspection to batch release">
+  <label class="f">Main area</label>${areaSelect('pArea',p.area)}
+  <label class="f">Starts when</label><input type="text" id="pStart" value="${esc(p.start)}" placeholder="Example: First piece comes off the machine">
+  <label class="f">Ends when</label><input type="text" id="pEnd" value="${esc(p.end)}" placeholder="Example: Batch is released to run">
+  <label class="f">Steps, in order</label><p class="note" style="margin-top:-2px">Work = changes the part or job. Wait = nothing happens. Move = carried or sent somewhere. Check = inspected or approved.</p>
+  <div id="pSteps">${stepsHtml()}</div><button type="button" class="btn quiet full" id="pAdd">+ Add step</button>
+  <div class="card" style="margin-top:12px" id="pTot"></div>
+  <label class="f">Notes <span class="opt">(optional)</span></label><textarea id="pNotes">${esc(p.notes)}</textarea>
+  ${p.id?`<div style="margin-top:22px">${archBtn('process',p)}</div>`:''}`;
+  openSheet(p.id?'Edit snapshot':'Process snapshot',html,()=>{
+    Object.assign(p,{title:val('pTitle').trim(),area:val('pArea'),start:val('pStart').trim(),end:val('pEnd').trim(),notes:val('pNotes').trim()});
+    p.steps=p.steps.filter(s=>s.name.trim()||num(s.minutes));
+    if(!p.title)return toast('Name the process');if(!p.steps.length)return toast('Add at least one step');
+    upsert('process',p);toast('Saved');return true;
+  });
+  const box=document.getElementById('pSteps');
+  const tot=()=>{const t=procTotals(p);document.getElementById('pTot').innerHTML=`<b>Total ${dur(t.all)}</b><div class="note">Work ${dur(t.work)} · Wait ${dur(t.wait)} · Move ${dur(t.move)} · Check ${dur(t.check)}<br>Hands-on work is ${t.valuePct}% of the total time.</div>`};
+  const redraw=()=>{box.innerHTML=stepsHtml();tot()};
+  box.addEventListener('input',e=>{const i=e.target.dataset.i,f=e.target.dataset.f;if(i!=null){p.steps[i][f]=e.target.value;tot()}});
+  box.addEventListener('change',e=>{const i=e.target.dataset.i,f=e.target.dataset.f;if(i!=null){p.steps[i][f]=e.target.value;tot()}});
+  box.addEventListener('click',e=>{const d=e.target.dataset.del;if(d!=null){p.steps.splice(+d,1);if(!p.steps.length)p.steps.push({name:'',kind:'work',minutes:''});redraw()}});
+  document.getElementById('pAdd').onclick=()=>{p.steps.push({name:'',kind:'work',minutes:''});redraw()};
+  tot();
+}
+
+/* ---------- IDEAS ---------- */
+function viewIdea(){
+  fab('newIdea()','New idea');
+  const r=rows('idea');
+  const c=s=>active('idea').filter(i=>i.status===s).length;
+  return listHead('Idea board','Improvement ideas from anyone in the shop, with credit to the person who raised them.','newIdea()','+ Add an idea')+
+  `<div class="stats" style="grid-template-columns:repeat(4,1fr)">${[['new','New'],['trying','Being tried'],['adopted','Adopted'],['aside','Set aside']].map(([k,l])=>`<div class="stat" style="padding:9px"><div class="n" style="font-size:20px">${c(k)}</div><div class="l">${l}</div></div>`).join('')}</div>`+
+  (r.length?r.map(i=>`<button class="item" onclick="editIdea('${i.id}')"><div class="top"><span>${fmtDate(i.created)} · ${esc(i.area)}</span><span class="tag ${i.status}">${statusLabel('idea',i.status)}</span></div><div class="title">${esc(i.title)}</div><div class="meta">${i.from?'From '+esc(i.from):'Anonymous'}${i.archived?' · archived':''}</div></button>`).join(''):'<div class="empty">No ideas yet. Ask around: people usually know exactly what slows them down.</div>')+archToggle('idea');
+}
+function newIdea(){ideaForm({title:'',details:'',from:'',area:'',status:'new',outcome:''})}
+function editIdea(id){ideaForm(JSON.parse(JSON.stringify(S.records.idea.find(x=>x.id===id))))}
+function ideaForm(i){
+  const html=`<label class="f">The idea, in one line</label><input type="text" id="iTitle" value="${esc(i.title)}">
+  <label class="f">Details</label><textarea id="iDet" placeholder="What would change, and what problem does it solve?">${esc(i.details)}</textarea>
+  <label class="f">Whose idea? <span class="opt">(credit them, or leave blank for anonymous)</span></label><input type="text" id="iFrom" value="${esc(i.from)}">
+  <label class="f">Area</label>${areaSelect('iArea',i.area)}
+  <label class="f">Status</label><div class="chips" id="iStat">${['new','trying','adopted','aside'].map(s=>`<button type="button" class="chip ${i.status===s?'on':''}" data-k="${s}">${statusLabel('idea',s)}</button>`).join('')}</div>
+  <label class="f">Outcome or reason <span class="opt">(optional)</span></label><textarea id="iOut">${esc(i.outcome)}</textarea>
+  ${i.id?`<div style="margin-top:22px;display:grid;gap:8px"><button class="btn ghost full" onclick="fixFromIdea('${i.id}')">Start a fix from this idea</button>${archBtn('idea',i)}</div>`:''}`;
+  openSheet(i.id?'Edit idea':'New idea',html,()=>{
+    Object.assign(i,{title:val('iTitle').trim(),details:val('iDet').trim(),from:val('iFrom').trim(),area:val('iArea'),outcome:val('iOut').trim()});
+    if(!i.title)return toast('Write the idea in one line');upsert('idea',i);toast('Saved');return true;
+  });
+  pick('iStat',k=>i.status=k);
+}
+
+/* ---------- FIXES (PDCA) ---------- */
+function unitLabel(u,o){return u==='other'?(o||''):(UNITS.find(x=>x[0]===u)||['',''])[1]}
+function viewFix(){
+  fab('newFix()','New fix');
+  const r=rows('fix');
+  return listHead('Fix tracker','Each fix is a small test: measure the problem, make one change, measure again. Plan, Do, Check, then mark it Done.','newFix()','+ Start a fix')+
+  (r.length?r.map(f=>{const res=(f.status==='done'&&f.after!=='')?`Result: ${esc(f.before)} → ${esc(f.after)} ${esc(unitLabel(f.unit,f.unitOther))}`:`Before: ${esc(f.before)} ${esc(unitLabel(f.unit,f.unitOther))}`;return `<button class="item" onclick="editFix('${f.id}')"><div class="top"><span>${esc(f.area)}${f.target?' · target '+fmtDate(f.target):''}</span><span class="tag ${f.status}">${statusLabel('fix',f.status)}</span></div><div class="title">${esc(f.title)}</div><div class="meta">${res}${f.archived?' · archived':''}</div></button>`}).join(''):'<div class="empty">No fixes yet. Start one from a waste entry or an idea, or tap <b>+ Start a fix</b>.</div>')+archToggle('fix');
+}
+function newFix(seed){fixForm(Object.assign({title:'',problem:'',area:'',measure:'',unit:'minw',unitOther:'',before:'',plan:'',who:'',target:'',status:'plan',after:'',result:'',fromWaste:'',fromIdea:''},seed||{}))}
+function editFix(id){fixForm(JSON.parse(JSON.stringify(S.records.fix.find(x=>x.id===id))))}
+function fixFromWaste(id){const w=S.records.waste.find(x=>x.id===id);closeSheet(true);const f=FREQ.find(x=>x[0]===w.freq);newFix({title:'',problem:w.what,area:w.area,plan:w.idea,measure:'Time lost to this problem',unit:'minw',before:f&&f[2]?String(Math.round(num(w.minutes)*f[2])):'',fromWaste:w.id})}
+function fixFromIdea(id){const i=S.records.idea.find(x=>x.id===id);closeSheet(true);newFix({title:i.title,problem:'',area:i.area,plan:i.details,fromIdea:i.id})}
+function fixForm(f){
+  const html=`<label class="f">Name of the fix</label><input type="text" id="xTitle" value="${esc(f.title)}" placeholder="Example: Pre-stage first-article paperwork">
+  <label class="f">Area</label>${areaSelect('xArea',f.area)}
+  <h3>Plan</h3>
+  <label class="f">The problem</label><textarea id="xProb">${esc(f.problem)}</textarea>
+  <label class="f">What will you measure?</label><input type="text" id="xMeas" value="${esc(f.measure)}" placeholder="Example: Minutes machines sit waiting for sign-off">
+  <div class="row"><div class="grow"><label class="f">Unit</label><select id="xUnit">${UNITS.map(u=>`<option value="${u[0]}" ${f.unit===u[0]?'selected':''}>${u[1]}</option>`).join('')}</select></div><div style="flex:0 0 120px"><label class="f">Before</label><input type="number" inputmode="decimal" id="xBefore" value="${esc(f.before)}"></div></div>
+  <div id="xOtherWrap" style="${f.unit==='other'?'':'display:none'}"><label class="f">Unit name</label><input type="text" id="xUnitOther" value="${esc(f.unitOther)}"></div>
+  <label class="f">What will change?</label><textarea id="xPlan">${esc(f.plan)}</textarea>
+  <div class="row"><div class="grow"><label class="f">Who is involved <span class="opt">(roles)</span></label><input type="text" id="xWho" value="${esc(f.who)}" placeholder="Example: Inspection lead, EDM operator"></div></div>
+  <label class="f">Target date</label><input type="date" id="xTarget" value="${esc(f.target)}">
+  <h3>Status</h3>
+  <div class="chips" id="xStat">${['plan','do','check','done','stopped'].map(s=>`<button type="button" class="chip ${f.status===s?'on':''}" data-k="${s}">${statusLabel('fix',s)}</button>`).join('')}</div>
+  <h3>Check</h3>
+  <label class="f">After <span class="opt">(same measure, same unit)</span></label><input type="number" inputmode="decimal" id="xAfter" value="${esc(f.after)}">
+  <label class="f">What happened? <span class="opt">(keep it, adjust it, or stop it)</span></label><textarea id="xRes">${esc(f.result)}</textarea>
+  ${f.id?`<div style="margin-top:22px">${archBtn('fix',f)}</div>`:''}`;
+  openSheet(f.id?'Edit fix':'New fix',html,()=>{
+    Object.assign(f,{title:val('xTitle').trim(),area:val('xArea'),problem:val('xProb').trim(),measure:val('xMeas').trim(),unit:val('xUnit'),unitOther:val('xUnitOther').trim(),before:val('xBefore'),plan:val('xPlan').trim(),who:val('xWho').trim(),target:val('xTarget'),after:val('xAfter'),result:val('xRes').trim()});
+    if(!f.title)return toast('Name the fix');
+    if(f.status==='done'&&f.after==='')return toast('Enter the "After" number before marking Done');
+    upsert('fix',f);
+    if(f.status==='done'){if(f.fromWaste){const w=S.records.waste.find(x=>x.id===f.fromWaste);if(w&&w.status!=='fixed'){w.status='fixed';upsert('waste',w)}}if(f.fromIdea){const i=S.records.idea.find(x=>x.id===f.fromIdea);if(i&&i.status!=='adopted'){i.status='adopted';upsert('idea',i)}}}
+    else if(f.fromWaste){const w=S.records.waste.find(x=>x.id===f.fromWaste);if(w&&w.status==='open'){w.status='prog';upsert('waste',w)}}
+    toast('Saved');return true;
+  });
+  pick('xStat',k=>f.status=k);
+  document.getElementById('xUnit').onchange=e=>document.getElementById('xOtherWrap').style.display=e.target.value==='other'?'':'none';
+}
+
+/* ---------- MORE ---------- */
+function viewMore(){fab();
+  return `<h2>More</h2><div class="menu">
+  <button class="item" onclick="go('backup')"><span><b>Backup and export</b><div class="meta">Save everything to a file, or restore from one</div></span><span>›</span></button>
+  <button class="item" onclick="go('share')"><span><b>Send to ${SHARE_TO.name.split(' ')[0]}</b><div class="meta">${S.sharing.consent==='agreed'?(lastSendText()):'Share your records for Eric’s shop software project (your choice)'}</div></span><span>›</span></button>
+  <button class="item" onclick="go('log')"><span><b>Activity log</b><div class="meta">${S.log.length} recorded actions, never erased</div></span><span>›</span></button>
+  <button class="item" onclick="go('settings')"><span><b>Settings</b><div class="meta">Your name, site and list of areas</div></span><span>›</span></button>
+  <button class="item" onclick="go('about')"><span><b>How to use this app</b><div class="meta">The tools, the 8 wastes and the ground rules</div></span><span>›</span></button></div>`}
+function viewLog(){fab();
+  const L=S.log.slice().reverse().slice(0,300);
+  return `<h2>Activity log</h2><p class="note" style="margin-top:-6px">Every action in the app is recorded here with the date and time. Entries are only ever added, never edited or erased. The full log is included in every backup.</p>
+  <div class="card">${L.length?L.map(e=>`<div class="logline"><span class="note">#${e.seq} · ${fmtTime(e.ts)}</span><br><span class="a">${esc(e.action)}</span> ${e.module?esc(MODS[e.module]||e.module)+': ':''}${esc(e.title)}</div>`).join(''):'<div class="note">Nothing yet.</div>'}</div>${S.log.length>300?'<p class="note">Showing the latest 300. All entries are in the backup file.</p>':''}`}
+function viewBackup(){fab();
+  return `<h2>Backup and export</h2>
+  <div class="card"><b>Full backup</b><p class="note">One file with every entry, your settings and the complete activity log. Do this at least once a week and keep the file somewhere safe (email it to yourself or save it to cloud storage). If this phone is lost or its browser data is cleared, this file is the only copy.</p><button class="btn full" onclick="exportJSON()">Export full backup</button>
+  <p class="note" style="margin-top:8px">${S.lastExport?'Last backup: '+fmtTime(S.lastExport):'No backup made yet.'}</p></div>
+  <div class="card"><b>Spreadsheet files</b><p class="note">One CSV file per tool. These open in Excel or Google Sheets for charts and reports.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${Object.entries(MODS).map(([k,l])=>`<button class="btn quiet" onclick="exportCSV('${k}')">${l}s</button>`).join('')}<button class="btn quiet" onclick="exportCSV('log')">Activity log</button></div></div>
+  <div class="card"><b>Restore from a backup</b><p class="note">Use this on a new phone, or after browser data was cleared. Entries are merged; nothing already on this phone is removed.</p><button class="btn ghost full" onclick="document.getElementById('importFile').click()">Choose backup file</button></div>
+  <p class="note">The backup file uses an open, documented format (JSON) so the records can be loaded into a spreadsheet or another company system later without retyping.</p>`}
+function viewSettings(){fab();
+  return `<h2>Settings</h2>
+  <label class="f">Your name</label><input type="text" id="tName" value="${esc(S.settings.name)}">
+  <label class="f">Company or site</label><input type="text" id="tSite" value="${esc(S.settings.site)}">
+  <label class="f">Areas <span class="opt">(one per line)</span></label><textarea id="tAreas" style="min-height:200px">${esc(S.settings.areas.join('\n'))}</textarea>
+  <p class="note">Removing an area here does not change entries already logged under it.</p>
+  ${S.sharing.consent==='agreed'?`<label class="f" style="display:flex;gap:10px;align-items:center;font-weight:400"><input type="checkbox" id="tRemind" ${S.sharing.remind?'checked':''} style="width:22px;height:22px"> Show a reminder on the Summary when it has been 30 days since sending to ${SHARE_TO.name.split(' ')[0]}</label>`:''}
+  <button class="btn full" style="margin-top:14px" onclick="saveSettings()">Save settings</button>`}
+function saveSettings(){const a=val('tAreas').split('\n').map(s=>s.trim()).filter(Boolean);if(!val('tName').trim())return toast('Enter your name');S.settings.name=val('tName').trim();S.settings.site=val('tSite').trim();S.settings.areas=a.length?a:S.settings.areas;const rm=document.getElementById('tRemind');if(rm)S.sharing.remind=rm.checked;logEvent('settings',null,null,'Settings changed');save();toast('Settings saved');go('more')}
+function viewAbout(){fab();
+  return `<h2>How to use this app</h2>
+  <div class="card"><b>The tools</b><p class="note"><b>Waste log:</b> record anything that costs time or material without adding value, when it happens.<br><b>Area walks:</b> visit an area, ask the five standard questions, and write down what you learn.<br><b>Process snapshots:</b> map one process step by step, with rough times, to see where work waits.<br><b>Idea board:</b> collect improvement ideas from anyone, with credit.<br><b>Fix tracker:</b> test one change at a time and measure before and after.<br><b>Summary:</b> totals, top problems and a written report you can send.</p></div>
+  <div class="card"><b>The 8 wastes (DOWNTIME)</b>${WASTES.map(w=>`<div style="margin:8px 0"><span class="letter">${w[0]}</span><b>${w[1]}</b><div class="note" style="margin-left:28px">${w[2]}</div></div>`).join('')}</div>
+  <div class="card"><b>Sending records to ${SHARE_TO.name.split(' ')[0]}</b><p class="note">Under <i>More → Send to ${SHARE_TO.name.split(' ')[0]}</i>, you can send a copy of your records to ${esc(SHARE_TO.email)} for ${esc(SHARE_PURPOSE)}. It only happens when you tap Send, and every send is logged.</p></div>
+  <div class="card"><b>Ground rules</b><p class="note">1. Use only with company authorization. This is a personal device, not a company-controlled one.<br>2. Problems, not people. Describe how work flows, never who is at fault.<br>3. No controlled information: no part numbers, customer names, drawing details, or anything marked CUI or export-controlled.<br>4. Follow the shop's rules on phone use on the floor. Log entries on break if needed.<br>5. Export a backup every week.</p></div>
+  <p class="note">CI Field Kit · data format ${APP} v${SCHEMA}</p>`}
+
+/* ---------- send to Eric (opt-in) ---------- */
+function daysSinceSend(){const l=S.sharing.sends[S.sharing.sends.length-1];if(!l)return null;return Math.floor((Date.now()-new Date(l.ts).getTime())/864e5)}
+function lastSendText(){const d=daysSinceSend();return d===null?'Agreed. Nothing sent yet.':'Last sent '+(d===0?'today':d+' day'+(d>1?'s':'')+' ago')}
+function counts(){const c={};for(const m of Object.keys(MODS))c[m]=S.records[m].length;c.log=S.log.length;return c}
+function viewShare(){fab();const first=SHARE_TO.name.split(' ')[0];
+  const terms=`<p>CI Field Kit was set up for you by ${esc(SHARE_TO.name)}. The one condition he asked for is that you share the records you capture here, for ${esc(SHARE_PURPOSE)}.</p>
+  <ul style="padding-left:18px;margin:0 0 10px"><li>Nothing is ever sent automatically. A file goes only when you tap <b>Send</b>.</li>
+  <li>You see what is in the file before every send.</li><li>The file goes through your phone's normal share menu, to <b>${esc(SHARE_TO.email)}</b>.</li>
+  <li>Every send is recorded in your activity log.</li><li>You can withdraw your agreement here at any time.</li></ul>`;
+  if(S.sharing.consent!=='agreed'){
+    return `<h2>Send to ${first}</h2><div class="card">${terms}
+    <button class="btn full" onclick="setConsent('agreed')">I agree</button>
+    <button class="btn quiet full" style="margin-top:8px" onclick="setConsent('declined');go('more')">Not now</button></div>
+    ${S.sharing.consent==='declined'?'<p class="note">You chose "Not now" on '+fmtDate(S.sharing.consentAt)+'. You can agree whenever you are ready.</p>':''}`}
+  const c=counts();
+  const hist=S.sharing.sends.slice().reverse().slice(0,10).map(x=>`<div class="logline">${fmtTime(x.ts)}<br><span class="note">${x.summary}</span></div>`).join('')||'<div class="note">Nothing sent yet.</div>';
+  return `<h2>Send to ${first}</h2>
+  <div class="okbox">You agreed on ${fmtDate(S.sharing.consentAt)}. ${lastSendText()}.</div>
+  <div class="card"><b>What this file contains</b>
+  <p class="note" style="margin-bottom:6px">Every entry in the app (including archived ones), your settings and the full activity log:</p>
+  <div class="stats" style="grid-template-columns:repeat(3,1fr);margin:0">${[['waste','Waste'],['walk','Walks'],['process','Processes'],['idea','Ideas'],['fix','Fixes'],['log','Log entries']].map(([k,l])=>`<div class="stat" style="padding:9px"><div class="n" style="font-size:20px">${c[k]}</div><div class="l">${l}</div></div>`).join('')}</div></div>
+  <button class="btn full" onclick="sendToEric()">Send file</button>
+  <p class="note" style="margin-top:8px">Your phone's share menu opens with the file attached. Choose email and send it to <b>${esc(SHARE_TO.email)}</b>. <button class="linkbtn" style="padding:0" onclick="copyAddr()">Copy address</button></p>
+  <div class="card" style="margin-top:12px"><b>Sent so far</b>${hist}</div>
+  <div class="card"><b>The agreement</b>${terms}<button class="btn danger full" onclick="setConsent('withdrawn');go('more')">Withdraw my agreement</button></div>`}
+function setConsent(v){S.sharing.consent=v;S.sharing.consentAt=now();logEvent('consent',null,null,v==='agreed'?`Agreed to share records with ${SHARE_TO.name} (${SHARE_TO.email}) for ${SHARE_PURPOSE}`:v==='declined'?'Chose "Not now" on sharing records':'Withdrew agreement to share records');save();if(v==='agreed')render();toast(v==='agreed'?'Thank you. Recorded.':'Recorded')}
+async function copyAddr(){try{await navigator.clipboard.writeText(SHARE_TO.email);toast('Address copied')}catch(e){toast(SHARE_TO.email)}}
+async function sendToEric(){
+  if(S.sharing.consent!=='agreed')return go('share');
+  const c=counts();const summary=`Waste ${c.waste} · Walks ${c.walk} · Processes ${c.process} · Ideas ${c.idea} · Fixes ${c.fix} · Log entries ${c.log}`;
+  const ts=now();
+  S.sharing.sends.push({ts,to:SHARE_TO.email,counts:c,summary});
+  logEvent('share',null,null,`File prepared for ${SHARE_TO.email}: ${summary}`);save();
+  const out=Object.assign({exportedAt:ts,format:'CI Field Kit full backup. records = current version of every entry; log = append-only history of every action.',sharedWith:SHARE_TO,purpose:SHARE_PURPOSE,sharedBy:S.settings.name},S);
+  const name=`ci-field-kit-for-${SHARE_TO.name.split(' ')[0].toLowerCase()}-${today()}.json`;
+  const text=`CI Field Kit records from ${S.settings.name}, ${fmtDate(ts)} (${summary}). For ${SHARE_PURPOSE}.`;
+  const file=new File([JSON.stringify(out,null,2)],name,{type:'application/json'});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'CI Field Kit records',text});render();return}}catch(e){if(e&&e.name==='AbortError'){toast('Not sent. Nothing left the phone.');S.sharing.sends.pop();logEvent('share-cancelled',null,null,'Share menu closed without sending');save();render();return}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+  openSheet('Attach and send',`<p>The file <b>${esc(name)}</b> was saved to your phone's downloads.</p><p>Open your email, attach that file and send it to:</p><p style="font-size:18px"><b>${esc(SHARE_TO.email)}</b></p><button class="btn ghost full" onclick="copyAddr()">Copy address</button>`,null);
+}
+
+/* ---------- export / import ---------- */
+function stamp(){return today()}
+function download(name,text,type){
+  const blob=new Blob([text],{type});
+  const file=new File([blob],name,{type});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:name}).catch(()=>{});return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+}
+function exportJSON(){
+  S.lastExport=now();logEvent('export',null,null,'Full backup exported');save();
+  const out=Object.assign({exportedAt:now(),format:'CI Field Kit full backup. records = current version of every entry; log = append-only history of every action.'},S);
+  download(`ci-field-kit-backup-${stamp()}.json`,JSON.stringify(out,null,2),'application/json');toast('Backup created');render();
+}
+function csvCell(v){if(v==null)v='';if(typeof v==='object')v=JSON.stringify(v);v=String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function exportCSV(m){
+  let rowsA;
+  if(m==='log')rowsA=S.log.map(e=>({seq:e.seq,timestamp:e.ts,action:e.action,module:e.module||'',record_id:e.id||'',by:e.by,title:e.title}));
+  else rowsA=S.records[m].map(r=>{const o={};for(const[k,v]of Object.entries(r)){if(m==='walk'&&k==='answers'){WALKQ.forEach((q,i)=>o['q'+(i+1)]=v[i]||'')}else if(m==='process'&&k==='steps'){o.steps=v.map(s=>`${s.name} [${s.kind}, ${s.minutes} min]`).join(' | ');const t=procTotals(r);o.total_min=t.all;o.wait_min=t.wait;o.work_pct=t.valuePct}else o[k]=v}
+    if(m==='waste'){const t=WASTES.find(x=>x[0]===r.type);o.type_name=t?t[1]:'';o.est_weekly_min=weeklyMin(r)}return o});
+  if(!rowsA.length)return toast('Nothing to export yet');
+  const cols=[...new Set(rowsA.flatMap(Object.keys))];
+  const text=[cols.join(','),...rowsA.map(r=>cols.map(c=>csvCell(r[c])).join(','))].join('\n');
+  logEvent('export',m==='log'?null:m,null,'CSV exported: '+(m==='log'?'activity log':MODS[m]));save();
+  download(`ci-field-kit-${m}-${stamp()}.csv`,text,'text/csv');
+}
+document.getElementById('importFile').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{
+    const d=JSON.parse(rd.result);if(d.app!==APP||!d.records)throw new Error('Not a CI Field Kit backup');
+    let added=0,updated=0;
+    for(const m of Object.keys(MODS))for(const r of d.records[m]||[]){const i=S.records[m].findIndex(x=>x.id===r.id);if(i<0){S.records[m].push(r);added++}else if((r.rev||0)>(S.records[m][i].rev||0)){S.records[m][i]=r;updated++}}
+    const seen=new Set(S.log.map(x=>x.ts+'|'+x.action+'|'+x.id));
+    const incoming=(d.log||[]).filter(x=>!seen.has(x.ts+'|'+x.action+'|'+x.id));
+    S.log=S.log.concat(incoming).sort((a,b)=>a.ts.localeCompare(b.ts)).map((x,i)=>Object.assign(x,{seq:i+1}));
+    if(!S.settings&&d.settings)S.settings=d.settings;
+    logEvent('import',null,null,`Backup restored: ${added} added, ${updated} updated`);save();toast(`Restored: ${added} added, ${updated} updated`);go('home');
+  }catch(err){toast('That file could not be read as a backup')}e.target.value=''};
+  rd.readAsText(f);
+});
+
+/* ---------- sheet helpers ---------- */
+let SAVEFN=null;
+function openSheet(title,html,onSave){document.getElementById('sheetTitle').textContent=title;document.getElementById('sheetBody').innerHTML=html;SAVEFN=onSave;document.getElementById('sheetSave').style.visibility=onSave?'visible':'hidden';const s=document.getElementById('sheet');s.classList.add('show');s.scrollTop=0;document.body.style.overflow='hidden'}
+function closeSheet(silent){document.getElementById('sheet').classList.remove('show');document.body.style.overflow='';SAVEFN=null;if(!silent)render()}
+document.getElementById('sheetSave').onclick=()=>{if(SAVEFN&&SAVEFN()===true){closeSheet(true);render()}};
+function val(id){const e=document.getElementById(id);return e?e.value:''}
+function pick(id,fn){const box=document.getElementById(id);if(!box)return;box.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;box.querySelectorAll('[data-k]').forEach(x=>x.classList.remove('on'));b.classList.add('on');fn(b.dataset.k)})}
+function archBtn(m,r){return r.archived?`<button class="btn quiet full" onclick="archive('${m}','${r.id}',false);closeSheet()">Restore this entry</button>`:`<button class="btn danger full" onclick="if(confirm('Archive this entry? It stays in the log and the backup, and can be restored.')){archive('${m}','${r.id}',true);closeSheet()}">Archive</button>`}
+
+/* ---------- example data (only with ?demo=1, never saved) ---------- */
+function demoData(){
+  const s=blank();s.settings={name:'Example User',site:'Example Shop',areas:DEFAULT_AREAS.slice(),createdAt:now()};
+  const d=n=>{const x=new Date(Date.now()-n*864e5);return x.toISOString().slice(0,10)};
+  const add=(m,r,ago)=>{r.id=uid();r.created=new Date(Date.now()-ago*864e5).toISOString();r.updated=r.created;r.rev=1;r.archived=false;s.records[m].push(r);s.log.push({seq:s.log.length+1,ts:r.created,action:'create',module:m,id:r.id,by:'Example User',title:titleOf(m,r),data:r})};
+  const W=[[1,'Inspection / QC','W','Waited for first-piece sign-off before running the batch.',45,'day','Schedule sign-off at a set time each morning.','prog'],
+   [2,'Tool crib','M','Searched for a 1/4" collet; it was not in its labeled spot.',15,'week','Shadow board for collets.','open'],
+   [3,'Machining','W','Machine idle waiting for material to be cut to size.',60,'week','Pre-cut stock the day before.','open'],
+   [4,'Shipping','E','Packing slip re-entered by hand from the traveler.',20,'day','','open'],
+   [6,'Machining','D','Rework on a batch: wrong revision of the setup sheet at the machine.',120,'month','Remove old setup sheets when a revision is released.','fixed'],
+   [8,'EDM','W','Waited on wire delivery; spool ran out mid-job.',90,'month','Min/max level on wire stock.','open'],
+   [9,'Receiving','T','Material moved twice before reaching the rack.',10,'day','','open'],
+   [12,'Programming','N','Operator knows a faster fixture setup but has not been asked.',30,'week','','open']];
+  W.forEach(([a,area,type,what,min,freq,idea,st])=>add('waste',{date:d(a),area,type,what,minutes:String(min),freq,idea,status:st},a));
+  add('walk',{date:d(5),area:'Receiving',people:'3',answers:['Material arrives by truck, is checked against the PO, then goes to the rack by the saw.','Paperwork waits for a signature when the lead is out.','Hunting for the right rack location.','Clear labels on incoming carts.','A second person able to sign receiving paperwork.'],notes:'',followup:'Ask who else can be trained to sign.'},5);
+  add('walk',{date:d(10),area:'Inspection / QC',people:'2',answers:['Parts come from machining on carts; released parts go to shipping.','First pieces wait in a queue until an inspector is free.','Interruptions for first-piece checks.','The queue board by the door.','Set times for first-piece checks.'],notes:'',followup:''},10);
+  add('process',{title:'First piece to batch release',area:'Inspection / QC',start:'First piece comes off the machine',end:'Batch is released to run',steps:[{name:'Remove and deburr',kind:'work',minutes:'10'},{name:'Carry to inspection',kind:'move',minutes:'5'},{name:'Wait in queue',kind:'wait',minutes:'50'},{name:'Inspect',kind:'check',minutes:'20'},{name:'Paperwork signed',kind:'check',minutes:'5'},{name:'Walk back to machine',kind:'move',minutes:'5'},{name:'Run batch',kind:'work',minutes:'0'}],notes:''},7);
+  add('idea',{title:'Shadow board for collets and holders',details:'Outline each tool on a board so a missing one is obvious.',from:'Second-shift operator',area:'Tool crib',status:'trying',outcome:''},4);
+  add('idea',{title:'Set first-piece check times',details:'Inspectors check first pieces at 7:30, 10:00 and 1:30.',from:'',area:'Inspection / QC',status:'new',outcome:''},3);
+  add('idea',{title:'Remove superseded setup sheets on release',details:'Whoever releases a new revision pulls the old sheet from the machine.',from:'Machinist',area:'Machining',status:'adopted',outcome:'In use since last month.'},20);
+  add('fix',{title:'Pull old setup sheets at revision release',problem:'Rework from running to a superseded setup sheet.',area:'Machining',measure:'Rework time from wrong-revision sheets',unit:'minw',unitOther:'',before:'90',plan:'Revision release includes pulling the old sheet.',who:'Programmer, shift lead',target:d(-5),status:'done',after:'0',result:'No repeats in four weeks. Keep.'},18);
+  add('fix',{title:'Fixed first-piece check times',problem:'Machines idle waiting for first-piece sign-off.',area:'Inspection / QC',measure:'Minutes machines wait for sign-off',unit:'minw',unitOther:'',before:'225',plan:'Trial set check times for two weeks.',who:'Inspection lead, machinists',target:d(-10),status:'do',after:'',result:''},2);
+  s.lastExport=new Date(Date.now()-2*864e5).toISOString();
+  s.sharing={consent:'agreed',consentAt:new Date(Date.now()-20*864e5).toISOString(),remind:true,sends:[{ts:new Date(Date.now()-9*864e5).toISOString(),to:SHARE_TO.email,summary:'Waste 6 · Walks 2 · Processes 1 · Ideas 3 · Fixes 2 · Log entries 14'}]};
+  return s;
+}
+
+/* ---------- start ---------- */
+load();
+if(!DEMO&&'serviceWorker'in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+const v0=(location.hash||'').slice(1);if(v0)VIEW=v0;
+render();
+</script>
+</body>
+</html>
